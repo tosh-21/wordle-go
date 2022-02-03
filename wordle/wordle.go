@@ -16,7 +16,7 @@ var isAlphaNum = regexp.MustCompile("^[a-z]*$")
 
 //var trys int = 1
 
-func GetWord() string {
+func GetWord() (string, []string) {
 	f, err := os.Open("words.txt")
 
 	if err != nil {
@@ -54,20 +54,19 @@ func GetWord() string {
 	randomIndex := rand1.Intn(len(ListOfWords))
 	pick := ListOfWords[randomIndex]
 	//fmt.Println(pick)
-	return pick
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	return ""
 
+	return pick, ListOfWords
 }
 
 func UserWord(trys int) []string {
 
 	attempts := trys
 	CorrectGuess := []string{"o", "o", "o", "o", "o"}
-	wordOfTheDay := GetWord()
+	wordOfTheDay, wordList := GetWord()
 	fmt.Println("Try #: ", attempts)
 	fmt.Println("Enter your guess: ")
 	reader := bufio.NewReader(os.Stdin)
@@ -87,13 +86,15 @@ func UserWord(trys int) []string {
 	if len(inputChar) != 5 {
 		fmt.Println("Please enter a five letter word.")
 		UserWord(attempts)
+	} else if !(WordCheck(trimmedInput, wordList)) {
+		fmt.Println("Word does not exist. Try again.")
+		UserWord(attempts)
 	} else {
 		attempts += 1
 		fmt.Println(LetterExists(inputChar, wordleChar))
-
 		if attempts < 7 {
 			if reflect.DeepEqual(LetterExists(inputChar, wordleChar), CorrectGuess) {
-				fmt.Printf("Correct in %d tries", attempts)
+				fmt.Printf("Correct in %d tries", attempts-1)
 			} else {
 				fmt.Println("Try again")
 				UserWord(attempts)
@@ -130,6 +131,15 @@ func LetterExists(guess []string, wordle []string) []string {
 func YellowBox(input string, answer []string) bool {
 	for _, value := range answer {
 		if value == input {
+			return true
+		}
+	}
+	return false
+}
+
+func WordCheck(userInput string, wordList []string) bool {
+	for _, value := range wordList {
+		if value == userInput {
 			return true
 		}
 	}
