@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	wordle.UserWord(1)
+	wordle.UserWord(1, [][]string{})
 	//fmt.Println(guess)
 
 }
