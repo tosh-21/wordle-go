@@ -16,8 +16,8 @@ var isAlphaNum = regexp.MustCompile("^[a-z]*$")
 
 //var trys int = 1
 
-func GetWord() string {
-	f, err := os.Open("words.txt")
+func GetWord() (string, []string) {
+	f, err := os.Open("words2.txt")
 
 	if err != nil {
 		log.Fatal(err)
@@ -54,20 +54,20 @@ func GetWord() string {
 	randomIndex := rand1.Intn(len(ListOfWords))
 	pick := ListOfWords[randomIndex]
 	//fmt.Println(pick)
-	return pick
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	return ""
 
+	return pick, ListOfWords
 }
 
-func UserWord(trys int) []string {
+func UserWord(trys int, resultArray [][]string) []string {
 
 	attempts := trys
 	CorrectGuess := []string{"o", "o", "o", "o", "o"}
-	wordOfTheDay := GetWord()
+	//var finalArray [][]string
+	wordOfTheDay, wordList := GetWord()
 	fmt.Println("Try #: ", attempts)
 	fmt.Println("Enter your guess: ")
 	reader := bufio.NewReader(os.Stdin)
@@ -77,29 +77,33 @@ func UserWord(trys int) []string {
 		log.Fatal("Error while reading input")
 	}
 
-	//var arrayChar []string
 	trimmedInput := strings.TrimSpace(input)
 	inputChar := strings.Split(trimmedInput, "")
 	wordleChar := strings.Split(wordOfTheDay, "")
 	//fmt.Println(inputChar)
-	//fmt.Println(wordleChar)
+	//fmt.Println(wordOfTheDay)
 
 	if len(inputChar) != 5 {
 		fmt.Println("Please enter a five letter word.")
-		UserWord(attempts)
+		UserWord(attempts, resultArray)
+	} else if WordCheck(trimmedInput, wordList) == false {
+		fmt.Println("Word does not exist. Try again.")
+		UserWord(attempts, resultArray)
 	} else {
 		attempts += 1
 		fmt.Println(LetterExists(inputChar, wordleChar))
-
+		resultArray = AppendSlice(resultArray, LetterExists(inputChar, wordleChar))
 		if attempts < 7 {
 			if reflect.DeepEqual(LetterExists(inputChar, wordleChar), CorrectGuess) {
-				fmt.Printf("Correct in %d tries", attempts)
+				fmt.Printf("Correct in %d tries \n", attempts-1)
+				PrintArray(resultArray)
 			} else {
 				fmt.Println("Try again")
-				UserWord(attempts)
+				UserWord(attempts, resultArray)
 			}
 		} else {
 			fmt.Println("Maximum tries reached")
+			PrintArray(resultArray)
 		}
 	}
 	return inputChar
@@ -134,4 +138,25 @@ func YellowBox(input string, answer []string) bool {
 		}
 	}
 	return false
+}
+
+func WordCheck(userInput string, wordList []string) bool {
+	wordMap := make(map[string]bool)
+	for _, value := range wordList {
+		wordMap[value] = true
+	}
+	return wordMap[userInput]
+}
+
+func AppendSlice(source [][]string, value []string) [][]string {
+	return append(source, value)
+}
+
+func PrintArray(array [][]string) {
+	for _, j := range array {
+		for _, i := range j {
+			fmt.Printf("%s ", i)
+		}
+		fmt.Printf("\n")
+	}
 }
