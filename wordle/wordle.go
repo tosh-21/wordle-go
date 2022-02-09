@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-var isAlphaNum = regexp.MustCompile("^[a-zA-Z]*$")
+var isAlphaNum = regexp.MustCompile("^[a-z]*$")
 
 //var trys int = 1
 
 func GetWord() (string, []string) {
-	f, err := os.Open("words.txt")
+	f, err := os.Open("words2.txt")
 
 	if err != nil {
 		log.Fatal(err)
@@ -62,11 +62,11 @@ func GetWord() (string, []string) {
 	return pick, ListOfWords
 }
 
-func UserWord(trys int) []string {
+func UserWord(trys int, resultArray [][]string) []string {
 
 	attempts := trys
 	CorrectGuess := []string{"o", "o", "o", "o", "o"}
-	var finalArray [][]string
+	//var finalArray [][]string
 	wordOfTheDay, wordList := GetWord()
 	fmt.Println("Try #: ", attempts)
 	fmt.Println("Enter your guess: ")
@@ -81,29 +81,29 @@ func UserWord(trys int) []string {
 	inputChar := strings.Split(trimmedInput, "")
 	wordleChar := strings.Split(wordOfTheDay, "")
 	//fmt.Println(inputChar)
-	fmt.Println(wordOfTheDay)
+	//fmt.Println(wordOfTheDay)
 
 	if len(inputChar) != 5 {
 		fmt.Println("Please enter a five letter word.")
-		UserWord(attempts)
+		UserWord(attempts, resultArray)
 	} else if WordCheck(trimmedInput, wordList) == false {
 		fmt.Println("Word does not exist. Try again.")
-		UserWord(attempts)
+		UserWord(attempts, resultArray)
 	} else {
 		attempts += 1
-		fmt.Println(LetterExists(inputChar, wordleChar, finalArray))
-		clueArray, sliceArray := LetterExists(inputChar, wordleChar, finalArray)
+		fmt.Println(LetterExists(inputChar, wordleChar))
+		resultArray = AppendSlice(resultArray, LetterExists(inputChar, wordleChar))
 		if attempts < 7 {
-			if reflect.DeepEqual(clueArray, CorrectGuess) {
+			if reflect.DeepEqual(LetterExists(inputChar, wordleChar), CorrectGuess) {
 				fmt.Printf("Correct in %d tries \n", attempts-1)
-				PrintArray(sliceArray)
+				PrintArray(resultArray)
 			} else {
 				fmt.Println("Try again")
-				UserWord(attempts)
+				UserWord(attempts, resultArray)
 			}
 		} else {
 			fmt.Println("Maximum tries reached")
-			PrintArray(sliceArray)
+			PrintArray(resultArray)
 		}
 	}
 	return inputChar
@@ -113,7 +113,7 @@ const greenBox = "🟩"
 const yellowBox = "🟨"
 const greyBox = "⬜"
 
-func LetterExists(guess []string, wordle []string, slicearray [][]string) ([]string, [][]string) {
+func LetterExists(guess []string, wordle []string) []string {
 	var clueArray []string
 	for k, v := range guess {
 		//fmt.Println(k, v)
@@ -125,10 +125,9 @@ func LetterExists(guess []string, wordle []string, slicearray [][]string) ([]str
 		} else {
 			clueArray = append(clueArray, "_")
 		}
-		AppendSlice(slicearray, clueArray)
 	}
 
-	return clueArray, slicearray
+	return clueArray
 
 }
 
