@@ -119,11 +119,11 @@ func LetterExists(guess []string, wordle []string) []string {
 		//fmt.Println(k, v)
 		//fmt.Println(wordle[k])
 		if v == wordle[k] {
-			clueArray = append(clueArray, "o")
+			clueArray = append(clueArray, greenBox)
 		} else if YellowBox(v, wordle) {
-			clueArray = append(clueArray, "x")
+			clueArray = append(clueArray, yellowBox)
 		} else {
-			clueArray = append(clueArray, "_")
+			clueArray = append(clueArray, greyBox)
 		}
 	}
 
